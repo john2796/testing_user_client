@@ -1,6 +1,17 @@
 import React, { Component } from "react";
-import DisplayData from "./_components/DisplayData";
 import Login from "./_components/Login";
+import CreateAccount from './_components/CreateAccount';
+import {
+  BrowserRouter as Router,
+  Redirect,
+  Route
+} from 'react-router-dom';
+
+
+
+
+
+const HomePage = () => <h1>HomePage</h1>
 
 export default class App extends Component {
   state = {
@@ -9,7 +20,8 @@ export default class App extends Component {
     "lastName": "",
     "username": "",
     "password": "",
-    "email": ""
+    "email": "",
+    currentUser: []
   };
 
   componentDidMount = () => {
@@ -68,77 +80,40 @@ export default class App extends Component {
       body: JSON.stringify(this.state)
     })
       .then(res => res.json())
-      .then(data => this.setState({ data }))
+      .then(data => this.setState({ currentUser: data }))
+
+
+    if (this.state.data.length === 0) {
+      return <Redirect to="/" />
+    } else {
+      return <Redirect to="/dashboard" />
+    }
   }
 
 
 
   render() {
-    const { data } = this.state;
-    console.log(data);
-
     return (
-      <>
-        <form onSubmit={this.postHandler}>
-          <br />
-          <input
-            type="text"
-            name="firstName"
-            value={this.state.firstName}
-            onChange={this.onChangeHander}
-          />
-          <label>firstName</label>
-          <br />
-          <input
-            type="text"
-            name="lastName"
-            value={this.state.lastName}
-            onChange={this.onChangeHander}
-          />
-          <label>lastName</label>
-          <br />
-          <input
-            type="text"
-            name="username"
-            value={this.state.username}
-            onChange={this.onChangeHander}
-          />
-          <label>username</label>
-          <br />
-          <input
-            type="text"
-            name="password"
-            value={this.state.password}
-            onChange={this.onChangeHander}
-          />
-          <label>password</label>
-          <br />
+      <Router>
+        <>
 
-          <input
-            type="text"
-            name="email"
-            value={this.state.email}
-            onChange={this.onChangeHander}
-          />
-          <label>email</label>
-          <br />
-          <button type="submit">Submit</button>
-        </form>
-        {!data
-          ? null
-          : data.map(item => (
-            <DisplayData
-              key={item._id}
-              data={item}
-              deleteHandler={() => this.deleteHandler(item._id)}
-            />
-          ))}
-        <Login
-          state={this.state}
-          onChangeHander={this.onChangeHander}
-          loginHanlder={this.loginHanlder}
-        />
-      </>
+
+          <Route exact path="/" render={() => <Login
+            state={this.state}
+            onChangeHander={this.onChangeHander}
+            loginHanlder={this.loginHanlder}
+          />} />
+          <Route path="/register" render={() => <CreateAccount
+            state={this.state}
+            onChangeHander={this.onChangeHander}
+            postHandler={this.postHandler}
+          />} />
+
+
+          <Route path="/dashboard" render={() => <HomePage />
+          } />
+        </>
+      </Router>
     );
   }
 }
